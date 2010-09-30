@@ -1,0 +1,38 @@
+<project name="log4j-azure" default="compile">
+
+    <property name="src" value="src"/>
+    <property name="lib" value="lib"/>
+    <property name="classes" value="classes"/>
+
+    <path id="project.classpath">
+        <pathelement location="${classes}"/>
+        <fileset dir="${lib}">
+	        <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${classes}"/>
+	    <delete file="azure.log" />
+	    <delete file="log4j-azure.jar" />
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes}"/>
+	    <javac srcdir="${src}"
+	        destdir="${classes}"
+	        deprecation="on"
+	        debug="on">
+	        <classpath refid="project.classpath"/>
+	    </javac>
+    </target>
+
+
+    <target name="jar" depends="compile">
+        <jar destfile="log4j-azure.jar"
+            basedir="${classes}"
+            includes="**/*.class" />
+    </target>
+
+</project>
+
