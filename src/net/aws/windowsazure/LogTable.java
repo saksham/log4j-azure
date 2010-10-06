@@ -26,11 +26,11 @@ public class LogTable {
 
     private TableServiceContext tableServiceContext;
 	
-    public LogTable(String accountName, String password, String tableName) {
+    public LogTable(String tableStorageEndpoint, String accountName, String password, boolean usePathStyleUris, String tableName) {
 		
         TableStorageClient storage = TableStorageClient.create(
-                                       URI.create("http://table.core.windows.net"),
-                                       false,
+                                       URI.create(tableStorageEndpoint),
+                                       usePathStyleUris,
                                        accountName,
                                        password);
 
@@ -43,10 +43,11 @@ public class LogTable {
 
     }
 	
-    public void insert(String partitionKey, String rowKey, String message) {
+    public void insert(String partitionKey, String rowKey, String message, String level) {
 
         LogEntity logEntity = new LogEntity(partitionKey, rowKey);
         logEntity.setMessage(message);
+        logEntity.setLevel(level);
         tableServiceContext.insertEntity(logEntity);
 	
     }

@@ -17,6 +17,12 @@ Active Web Solutions Ltd, its employees, contractors or agents.
 
 package net.aws.windowsazure;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.sql.Timestamp;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.Level;
@@ -24,6 +30,7 @@ import org.apache.log4j.Priority;
 
 public class AzureTableAppender extends AppenderSkeleton
 {
+	private String tableStorageEndpoint;
     private String accountName;
     private String accountKey;
     private String tableName = "Logs";
@@ -44,14 +51,29 @@ public class AzureTableAppender extends AppenderSkeleton
 
         String message = this.layout.format(loggingEvent);
 
-        if (this.logTable == null)
-            this.logTable = new LogTable(getAccountName(), getAccountKey(), getTableName());
+        if (this.logTable == null) {
+        	//When using development storage account, use path-style URIs
+        	boolean usePathStyleUris = getTableStorageEndpoint().contains("//127.0.0.1:10002");
+            this.logTable = new LogTable(getTableStorageEndpoint(), 
+            		getAccountName(), getAccountKey(), usePathStyleUris,
+            		getTableName());
+        }
 
+        //Construct row key based on the reversed timestamp
+        Calendar calendar = Calendar.getInstance();
+        Timestamp max = new Timestamp(new Date(Long.MAX_VALUE).getTime());
+        String rowKey = String.valueOf(max.getTime() - calendar.getTimeInMillis());
+        
+        //Change the calendar to today's date to compute partition key
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        String partitionKey = String.valueOf(max.getTime() - calendar.getTimeInMillis());
+        
         String level = loggingEvent.getLevel().toString();
 
-        String nanoTime = String.valueOf(System.nanoTime());
-
-        this.logTable.insert(level, nanoTime, message);
+        this.logTable.insert(partitionKey, rowKey, message, level);
 
         // Switch logging back on
         this.setThreshold(priority);
@@ -61,8 +83,16 @@ public class AzureTableAppender extends AppenderSkeleton
 	
     }
 
+    public String getTableStorageEndpoint() {
+    	return this.tableStorageEndpoint;
+    }
+
+    public void setTableStorageEndpoint(String tableStorageEndpoint) {
+    	this.tableStorageEndpoint = tableStorageEndpoint;
+    }
+    
     public String getAccountName() {
-        return accountName;
+        return this.accountName;
     }
 
     public void setAccountName(String accountName) {
@@ -70,7 +100,7 @@ public class AzureTableAppender extends AppenderSkeleton
     }
 
     public String getAccountKey() {
-        return accountKey;
+        return this.accountKey;
     }
 
     public void setAccountKey(String accountKey) {
@@ -78,7 +108,7 @@ public class AzureTableAppender extends AppenderSkeleton
     }
 
     public String getTableName() {
-        return tableName;
+        return this.tableName;
     }
 
     public void setTableName(String tableName) {

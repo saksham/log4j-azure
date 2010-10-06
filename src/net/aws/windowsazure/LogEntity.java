@@ -17,6 +17,11 @@ Active Web Solutions Ltd, its employees, contractors or agents.
 
 package net.aws.windowsazure;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.soyatec.windowsazure.table.AbstractTableServiceEntity;
 
 public class LogEntity extends AbstractTableServiceEntity {
@@ -37,5 +42,22 @@ public class LogEntity extends AbstractTableServiceEntity {
     	this.Message = message;                   
     }
 
+    private String Level;
+    
+    public String getLevel()
+    {
+    	return this.Level;
+    }
+    
+    public void setLevel(String level) {
+    	this.Level = level;
+    }
+    
+    public Date getLogTime() {
+    	Timestamp reversedTimestamp = new Timestamp(Long.valueOf(getRowKey())); 
+    	Timestamp maxTimestamp = new Timestamp(new Date(Long.MAX_VALUE).getTime());
+    	return new Date(maxTimestamp.getTime() - reversedTimestamp.getTime());
+    }
+    
 }
 

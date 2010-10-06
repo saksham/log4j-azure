@@ -8,7 +8,7 @@ public class LogExample {
     static Logger log = Logger.getLogger(LogExample.class);
 
     public static void main(String argsp[]) {
-
+    	
         log.debug("Here is some DEBUG");
         log.info("Here is some INFO");
         log.warn("Here is some WARN");

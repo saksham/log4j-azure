@@ -2,7 +2,8 @@
 
     <property name="src" value="src"/>
     <property name="lib" value="lib"/>
-    <property name="classes" value="classes"/>
+    <property name="bin" value="bin"/>
+	  <property name="classes" value="${bin}/classes" />
 
     <path id="project.classpath">
         <pathelement location="${classes}"/>
@@ -12,12 +13,13 @@
     </path>
 
     <target name="clean">
-        <delete dir="${classes}"/>
 	    <delete file="azure.log" />
-	    <delete file="log4j-azure.jar" />
+    	<delete dir="${classes}"/>
+    	<delete dir="${bin}" />
     </target>
 
     <target name="compile">
+    	<mkdir dir="${bin}" />
         <mkdir dir="${classes}"/>
 	    <javac srcdir="${src}"
 	        destdir="${classes}"
@@ -29,7 +31,7 @@
 
 
     <target name="jar" depends="compile">
-        <jar destfile="log4j-azure.jar"
+        <jar destfile="${bin}/log4j-azure.jar"
             basedir="${classes}"
             includes="**/*.class" />
     </target>

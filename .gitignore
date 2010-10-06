@@ -1,0 +1,17 @@
+#java specific
+*.class
+
+#eclipse ignore personal stuff 
+.externalToolBuilders/
+.project
+.classpath
+
+
+## generic files to ignore
+bin/
+*.log
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
